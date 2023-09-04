@@ -12,7 +12,6 @@ import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-//<<< Clean Arch / Inbound Adaptor
 @Service
 @Transactional
 public class PolicyHandler {
@@ -27,30 +26,18 @@ public class PolicyHandler {
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='ReviewCompleted'"
     )
-    public void wheneverReviewCompleted_PayClaim(
-        @Payload ReviewCompleted reviewCompleted
-    ) {
+    public void wheneverReviewCompleted_PayClaim(@Payload ReviewCompleted reviewCompleted) {
         ReviewCompleted event = reviewCompleted;
-        System.out.println(
-            "\n\n##### listener PayClaim : " + reviewCompleted + "\n\n"
-        );
-        // Sample Logic //
-
+        Payment.payClaim(event);
     }
 
     @StreamListener(
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='ReviewCancelled'"
     )
-    public void wheneverReviewCancelled_CancelPayment(
-        @Payload ReviewCancelled reviewCancelled
-    ) {
+    public void wheneverReviewCancelled_CancelPayment(@Payload ReviewCancelled reviewCancelled) {
         ReviewCancelled event = reviewCancelled;
-        System.out.println(
-            "\n\n##### listener CancelPayment : " + reviewCancelled + "\n\n"
-        );
-        // Sample Logic //
+        Payment.cancelPayment(event);
 
     }
 }
-//>>> Clean Arch / Inbound Adaptor

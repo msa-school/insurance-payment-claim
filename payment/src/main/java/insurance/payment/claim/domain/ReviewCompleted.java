@@ -1,6 +1,5 @@
 package insurance.payment.claim.domain;
 
-import insurance.payment.claim.domain.*;
 import insurance.payment.claim.infra.AbstractEvent;
 import java.util.*;
 import lombok.*;

@@ -12,7 +12,6 @@ import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-//<<< Clean Arch / Inbound Adaptor
 @Service
 @Transactional
 public class PolicyHandler {
@@ -27,44 +26,27 @@ public class PolicyHandler {
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='ReviewerAssigned'"
     )
-    public void wheneverReviewerAssigned_UpdateStatus(
-        @Payload ReviewerAssigned reviewerAssigned
-    ) {
+    public void wheneverReviewerAssigned_UpdateStatus(@Payload ReviewerAssigned reviewerAssigned) {
         ReviewerAssigned event = reviewerAssigned;
-        System.out.println(
-            "\n\n##### listener UpdateStatus : " + reviewerAssigned + "\n\n"
-        );
-        // Sample Logic //
-
+        Claim.updateStatus(event);        
     }
 
     @StreamListener(
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='ReviewCompleted'"
     )
-    public void wheneverReviewCompleted_UpdateStatus(
-        @Payload ReviewCompleted reviewCompleted
-    ) {
+    public void wheneverReviewCompleted_UpdateStatus(@Payload ReviewCompleted reviewCompleted) {
         ReviewCompleted event = reviewCompleted;
-        System.out.println(
-            "\n\n##### listener UpdateStatus : " + reviewCompleted + "\n\n"
-        );
-        // Sample Logic //
-
+        Claim.updateStatus(event); 
     }
 
     @StreamListener(
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='ReviewCancelled'"
     )
-    public void wheneverReviewCancelled_UpdateStatus(
-        @Payload ReviewCancelled reviewCancelled
-    ) {
+    public void wheneverReviewCancelled_UpdateStatus(@Payload ReviewCancelled reviewCancelled) {
         ReviewCancelled event = reviewCancelled;
-        System.out.println(
-            "\n\n##### listener UpdateStatus : " + reviewCancelled + "\n\n"
-        );
-        // Sample Logic //
+        Claim.updateStatus(event); 
 
     }
 
@@ -72,14 +54,9 @@ public class PolicyHandler {
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='PaymentCancelled'"
     )
-    public void wheneverPaymentCancelled_UpdateStatus(
-        @Payload PaymentCancelled paymentCancelled
-    ) {
+    public void wheneverPaymentCancelled_UpdateStatus(@Payload PaymentCancelled paymentCancelled) {
         PaymentCancelled event = paymentCancelled;
-        System.out.println(
-            "\n\n##### listener UpdateStatus : " + paymentCancelled + "\n\n"
-        );
-        // Sample Logic //
+        Claim.updateStatus(event); 
 
     }
 
@@ -89,11 +66,7 @@ public class PolicyHandler {
     )
     public void wheneverClaimPaid_UpdateStatus(@Payload ClaimPaid claimPaid) {
         ClaimPaid event = claimPaid;
-        System.out.println(
-            "\n\n##### listener UpdateStatus : " + claimPaid + "\n\n"
-        );
-        // Sample Logic //
+        Claim.updateStatus(event); 
 
     }
 }
-//>>> Clean Arch / Inbound Adaptor

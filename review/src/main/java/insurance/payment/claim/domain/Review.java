@@ -1,54 +1,37 @@
 package insurance.payment.claim.domain;
 
 import insurance.payment.claim.ReviewApplication;
-import insurance.payment.claim.domain.ReviewCancelled;
-import insurance.payment.claim.domain.ReviewCompleted;
-import insurance.payment.claim.domain.ReviewerAssigned;
-import java.time.LocalDate;
 import java.util.Date;
-import java.util.List;
 import javax.persistence.*;
 import lombok.Data;
 
 @Entity
 @Table(name = "Review_table")
 @Data
-//<<< DDD / Aggregate Root
 public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long reviewId;
-
     private Long claimId;
-
     private Long reviewerId;
-
     private Date reviewDt;
-
     private String reviewDetails;
-
     private String status;
-
     private String diseaseCode;
-
-    @PostPersist
-    public void onPostPersist() {
-        ReviewerAssigned reviewerAssigned = new ReviewerAssigned(this);
-        reviewerAssigned.publishAfterCommit();
-    }
-
-    @PostUpdate
-    public void onPostUpdate() {
-        ReviewCompleted reviewCompleted = new ReviewCompleted(this);
-        reviewCompleted.publishAfterCommit();
-
-        ReviewCancelled reviewCancelled = new ReviewCancelled(this);
-        reviewCancelled.publishAfterCommit();
-    }
+    private String reviewType;
 
     @PreUpdate
-    public void onPreUpdate() {}
+    public void onPostUpdate() {
+        // 심사 Type이 심사완료(reviewed)일 경우, "리뷰완료" 이벤트 Publish.
+        if (this.getReviewType() != null &&
+                    this.getReviewType().equalsIgnoreCase("reviewed")) {
+            this.setStatus(ReviewCompleted.class.getSimpleName());
+
+            ReviewCompleted reviewCompleted = new ReviewCompleted(this);
+            reviewCompleted.publishAfterCommit();
+        }
+    }
 
     public static ReviewRepository repository() {
         ReviewRepository reviewRepository = ReviewApplication.applicationContext.getBean(
@@ -56,5 +39,29 @@ public class Review {
         );
         return reviewRepository;
     }
+
+    public static void cancelReview(ClaimCancelled claimCancelled) {
+        repository().findByClaimId(claimCancelled.getClaimId()).ifPresent(review->{
+            review.setReviewType("cancel");
+            review.setStatus(ReviewCancelled.class.getSimpleName()); 
+
+            repository().save(review);
+
+            ReviewCancelled reviewCancelled = new ReviewCancelled(review);
+            reviewCancelled.publishAfterCommit();
+        });
+    }
+
+    public static void assignReview(ClaimReceived claimReceived) {
+        Review review = new Review();
+        review.setClaimId(claimReceived.getClaimId());
+        review.setDiseaseCode(claimReceived.getDiseaseCode());
+        review.setReviewId(100L);
+        review.setStatus(ReviewerAssigned.class.getSimpleName());
+
+        repository().save(review);
+
+        ReviewerAssigned reviewerAssigned = new ReviewerAssigned(review);
+        reviewerAssigned.publishAfterCommit();
+    }
 }
-//>>> DDD / Aggregate Root

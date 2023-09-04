@@ -1,12 +1,9 @@
 package insurance.payment.claim.domain;
 
-import insurance.payment.claim.domain.*;
 import insurance.payment.claim.infra.AbstractEvent;
-import java.time.LocalDate;
 import java.util.*;
 import lombok.*;
 
-//<<< DDD / Domain Event
 @Data
 @ToString
 public class PaymentCancelled extends AbstractEvent {
@@ -26,4 +23,3 @@ public class PaymentCancelled extends AbstractEvent {
         super();
     }
 }
-//>>> DDD / Domain Event

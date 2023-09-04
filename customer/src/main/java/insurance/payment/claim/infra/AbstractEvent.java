@@ -1,7 +1,5 @@
 package insurance.payment.claim.infra;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import insurance.payment.claim.CustomerApplication;
 import insurance.payment.claim.config.kafka.KafkaProcessor;
 import org.springframework.beans.BeanUtils;
@@ -12,7 +10,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.MimeTypeUtils;
 
-//<<< Clean Arch / Outbound Adaptor
 public class AbstractEvent {
 
     String eventType;
@@ -80,4 +77,3 @@ public class AbstractEvent {
         return getEventType().equals(getClass().getSimpleName());
     }
 }
-//>>> Clean Arch / Outbound Adaptor

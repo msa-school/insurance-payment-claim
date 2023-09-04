@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.*;
 import lombok.*;
 
-//<<< DDD / Domain Event
 @Data
 @ToString
 public class ClaimReceived extends AbstractEvent {
@@ -27,4 +26,3 @@ public class ClaimReceived extends AbstractEvent {
         super();
     }
 }
-//>>> DDD / Domain Event

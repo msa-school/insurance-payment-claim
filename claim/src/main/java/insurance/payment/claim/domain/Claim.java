@@ -1,31 +1,37 @@
 package insurance.payment.claim.domain;
 
-import insurance.payment.claim.ClaimApplication;
-import insurance.payment.claim.domain.ClaimCancelled;
-import insurance.payment.claim.domain.ClaimReceived;
-import java.time.LocalDate;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.*;
+
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+
+import insurance.payment.claim.ClaimApplication;
 import lombok.Data;
 
 @Entity
 @Table(name = "Claim_table")
 @Data
-//<<< DDD / Aggregate Root
 public class Claim {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long claimId;
-
     private Long customerId;
-
     private Date claimDt;
-
     private String claimDetails;
-
     private String status;
+    private String claimType;
 
     @ElementCollection
     private List<Attachments> attachments;
@@ -34,18 +40,26 @@ public class Claim {
 
     @PostPersist
     public void onPostPersist() {
+        this.setStatus(ClaimReceived.class.getSimpleName());
         ClaimReceived claimReceived = new ClaimReceived(this);
         claimReceived.publishAfterCommit();
     }
 
-    @PostUpdate
-    public void onPostUpdate() {
-        ClaimCancelled claimCancelled = new ClaimCancelled(this);
-        claimCancelled.publishAfterCommit();
-    }
-
     @PreUpdate
-    public void onPreUpdate() {}
+    public void onPostUpdate() {
+        // Claim Type이 취소(Cancel)일 경우, "클레임취소" 이벤트 Publish.
+        // "ClaimCancelled" 상태인 경우, 도메인 변경에 따른 추가 이벤트는 Push되지 않는다. 
+        // The code below is not recommended..
+
+        if (this.getClaimType() != null && 
+                    this.getClaimType().equalsIgnoreCase("cancel")) {
+            this.setClaimType(null);
+            this.setStatus(ClaimCancelled.class.getSimpleName());  
+            
+            ClaimCancelled claimCancelled = new ClaimCancelled(this);
+            claimCancelled.publishAfterCommit();
+        }
+    }
 
     public static ClaimRepository repository() {
         ClaimRepository claimRepository = ClaimApplication.applicationContext.getBean(
@@ -53,5 +67,44 @@ public class Claim {
         );
         return claimRepository;
     }
+
+    public static void updateStatus(ReviewerAssigned event) {
+        repository().findById(event.getClaimId()).ifPresent(claim->{
+            claim.setStatus(ReviewerAssigned.class.getSimpleName()); 
+            
+            repository().save(claim);
+        });
+    }
+
+    public static void updateStatus(ReviewCompleted event) {
+        repository().findById(event.getClaimId()).ifPresent(claim->{
+            claim.setStatus(event.getClass().getSimpleName()); 
+
+            repository().save(claim);
+         });        
+    }
+
+    public static void updateStatus(ReviewCancelled event) {
+        repository().findById(event.getClaimId()).ifPresent(claim->{
+            claim.setStatus(event.getClass().getSimpleName()); 
+
+            repository().save(claim);
+         });        
+    }
+
+    public static void updateStatus(PaymentCancelled event) {
+        repository().findById(event.getClaimId()).ifPresent(claim->{
+            claim.setStatus(event.getClass().getSimpleName()); 
+
+            repository().save(claim);
+         });        
+    }
+
+    public static void updateStatus(ClaimPaid event) {
+        repository().findById(event.getClaimId()).ifPresent(claim->{
+            claim.setStatus(event.getClass().getSimpleName()); 
+
+            repository().save(claim);
+         });        
+    }
 }
-//>>> DDD / Aggregate Root
