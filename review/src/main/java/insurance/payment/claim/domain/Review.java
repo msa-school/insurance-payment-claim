@@ -23,7 +23,7 @@ public class Review {
 
     @PreUpdate
     public void onPostUpdate() {
-        // 심사 Type이 심사완료(reviewed)일 경우, "리뷰완료" 이벤트 Publish.
+        // The Update event within the domain is pushed only When the "Reviewtype" is 'reviewed'.
         if (this.getReviewType() != null &&
                     this.getReviewType().equalsIgnoreCase("reviewed")) {
             this.setStatus(ReviewCompleted.class.getSimpleName());

@@ -27,6 +27,8 @@ public class ClaimHistoryViewHandler {
             claimHistory.setClaimId(claimReceived.getClaimId());
             claimHistory.setCustomerId(claimReceived.getCustomerId());
             claimHistory.setDiseaseCode(claimReceived.getDiseaseCode());
+            claimHistory.setClaimDetails(claimReceived.getClaimDetails());
+            claimHistory.setClaimDt(claimReceived.getClaimDt());
             claimHistory.setStatus(claimReceived.getStatus());
             // view 레파지 토리에 save
             claimHistoryRepository.save(claimHistory);
@@ -72,6 +74,8 @@ public class ClaimHistoryViewHandler {
             for (ClaimHistory claimHistory : claimHistoryList) {
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
                 claimHistory.setReviewStatus(reviewCompleted.getStatus());
+                claimHistory.setReviewerId(reviewCompleted.getReviewerId());
+
                 // view 레파지 토리에 save
                 claimHistoryRepository.save(claimHistory);
             }

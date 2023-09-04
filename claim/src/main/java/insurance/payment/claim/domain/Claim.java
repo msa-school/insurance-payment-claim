@@ -47,7 +47,7 @@ public class Claim {
 
     @PreUpdate
     public void onPostUpdate() {
-        // Domain events are pushed only once when the first claim cancellation request is made.
+        // The update event within the domain is pushed only once. (ClaimCancelled)
         // The code below is not recommended.
 
         if (this.getClaimType() != null && 

@@ -1,6 +1,13 @@
 package insurance.payment.claim.domain;
 
-import javax.persistence.*;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import lombok.Data;
 
 @Entity
@@ -20,4 +27,6 @@ public class ClaimHistory {
     private String reviewStatus;
     private String paymentStatus;
     private String status;
+    private String claimDetails;
+    private Date claimDt;
 }
