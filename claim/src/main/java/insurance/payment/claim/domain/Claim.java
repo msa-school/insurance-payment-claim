@@ -47,15 +47,14 @@ public class Claim {
 
     @PreUpdate
     public void onPostUpdate() {
-        // Claim Type이 취소(Cancel)일 경우, "클레임취소" 이벤트 Publish.
-        // "ClaimCancelled" 상태인 경우, 도메인 변경에 따른 추가 이벤트는 Push되지 않는다. 
-        // The code below is not recommended..
+        // Domain events are pushed only once when the first claim cancellation request is made.
+        // The code below is not recommended.
 
         if (this.getClaimType() != null && 
                     this.getClaimType().equalsIgnoreCase("cancel")) {
             this.setClaimType(null);
             this.setStatus(ClaimCancelled.class.getSimpleName());  
-            
+
             ClaimCancelled claimCancelled = new ClaimCancelled(this);
             claimCancelled.publishAfterCommit();
         }
